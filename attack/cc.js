@@ -27,7 +27,7 @@ export async function main(ns) {
 
 	let i = 0;
 	while (true) {
-		await ns.sleep(100);
+		await ns.sleep(50);
 
 		let target = ns.peek(1);
 

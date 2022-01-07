@@ -32,6 +32,8 @@ export async function main(ns) {
 			ns.tprint('Server ' + server + ' has untapped potential (' + Math.floor(freeRam) + 'gb ram). Add '+ potential + ' extra threads.');
 		}
 
+		ns.exec('/util/planning-new-servers.js', 'home');
+
 		await ns.sleep(1000 * 60 * 30); // every 30 minute
 	}
 }
