@@ -89,6 +89,12 @@ export async function main(ns) {
 
 		let freeRam = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
 
+		if (server === 'home') {
+			freeRam -= ns.getScriptRam('/attack/cc.js');
+			freeRam -= ns.getScriptRam('/attack/heartbeat.js');
+			freeRam -= ns.getScriptRam('/util/new-servers.js');
+		}
+
 		var threadCount = Math.floor(freeRam / ns.getScriptRam(scriptName, server));
 		if (threadCount > 0) {
 			ns.tprint('Server: ' + server + ', with threadCount: ' + threadCount);

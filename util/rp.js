@@ -13,8 +13,6 @@ export async function main(ns) {
 	ns.disableLog('scp');
 	ns.disableLog('exec');
 
-	await ns.sleep(5000);
-
 	let targetServers = ['CSEC', 'avmnite-02h', 'I.I.I.I', 'run4theh111z'];
 
 	async function RecursiveGetServers(knownServers, path, serverName) {
@@ -36,7 +34,7 @@ export async function main(ns) {
 
 			if (knownServers.indexOf(server) == -1) {
 				knownServers.push(server);
-				RecursiveGetServers(knownServers, path, server);
+				await RecursiveGetServers(knownServers, path, server);
 			}
 
 		}

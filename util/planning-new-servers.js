@@ -27,10 +27,15 @@ export async function main(ns) {
 		return;
 	}
 
+	if (maxAffordableRamSize > ns.getPurchasedServerMaxRam()) {
+		maxAffordableRamSize = ns.getPurchasedServerMaxRam();
+		ns.print('Max ram reached');
+	}
+
 	var totalCost = 0;
 	for (var i = 0; i < ns.getPurchasedServerLimit(); i++) {
 		totalCost += ns.getPurchasedServerCost(maxAffordableRamSize);
 	}
 
-	ns.tprint("You can upgrade (from " + currentServerRam + "gb) servers to " + maxAffordableRamSize + "gb, and it would cost " + totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' }));
+	ns.tprint(`Uprade available! ${currentServerRam} to ${maxAffordableRamSize}. Cost: ${totalCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}\n run /util/new-server.js ${maxAffordableRamSize}`)
 }
