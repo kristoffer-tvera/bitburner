@@ -35,7 +35,8 @@ export async function expandOffice(ns, count, industry) {
 				await ns.corporation.assignJob(division.name, city, employee.name, positions[position]);
 			}
 		}
-
-		ns.toast(`Finished incrementing all ${industry}-offices.`, 'info');
+		ns.toast(`Round ${inc+1} out of ${count} (${industry})`, 'info');
 	}
+
+	ns.toast(`Finished incrementing all ${industry}-offices.`, 'info');
 }
