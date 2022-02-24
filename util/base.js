@@ -82,6 +82,7 @@ export function RecursiveGetServers(NS, knownServers, serverName) {
     var server = servers[i];
 
     if (server === "darkweb") continue;
+    if (server.startsWith("hacknet-node")) continue;
 
     if (knownServers.indexOf(server) == -1) {
       knownServers.push(server);
@@ -89,4 +90,48 @@ export function RecursiveGetServers(NS, knownServers, serverName) {
     }
   }
   return knownServers;
+}
+
+/** @param {NS} NS **/
+export function Graph(NS, timeSeries) {
+  let output = "\n";
+  for (let i = 0; i < timeSeries.length; i++) {
+    output += "\t";
+  }
+  output += "\n";
+
+  let maxValue = Math.max(...timeSeries.map((entry) => entry.value));
+
+  for (let j = 0; j < 20; j++) {
+    let percentage = (20 - j) / 20;
+
+    output += Math.floor(percentage * 100)
+      .toString()
+      .padStart(3, "0");
+    for (let i = 0; i < timeSeries.length; i++) {
+      let empty = timeSeries[i].value < maxValue * percentage;
+
+      if (empty) {
+        output += "\t";
+      } else {
+        output += "\t **";
+      }
+    }
+
+    output += "\n";
+  }
+
+  for (let i = 0; i < timeSeries.length; i++) {
+    output += "\t----";
+  }
+
+  output += "\n";
+
+  for (let i = 0; i < timeSeries.length; i++) {
+    output += "\t " + i.toString().padStart(2, "0");
+  }
+
+  output += `\n Table shows 5% to 100% of ${maxValue}, ${timeSeries.length} datapoints`;
+
+  NS.tprint(output);
 }

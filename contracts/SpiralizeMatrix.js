@@ -5,14 +5,15 @@ export async function main(ns) {
   let input = ns.codingcontract.getData(filename, host);
   let answer = [];
 
-  let matrix = [...input];
-  while (matrix.length) {
-    answer.push(
-      ...matrix.shift(),
-      ...matrix.map((a) => a.pop()),
-      ...matrix.pop().reverse(),
-      ...matrix.map((a) => a.shift()).reverse()
-    );
+  while (input.length > 0) {
+    answer.push(...input[0]);
+    input.shift();
+
+    if (input.length > 0) {
+      input = input[0]
+        .map((_, colIndex) => input.map((row) => row[colIndex]))
+        .reverse();
+    }
   }
 
   let result = ns.codingcontract.attempt(answer, filename, host);

@@ -1,47 +1,75 @@
+import { RecursiveGetServers } from "/util/base.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
-  async function RecursiveGetServers(knownServers, path, serverName, level) {
-    if (serverName != "home") path.push(serverName);
-    if (serverName.startsWith("pserv")) return;
-
-    let fullPath = "home;";
-    path.forEach(function (node) {
-      fullPath += "connect " + node + ";";
-    });
-
-    let contracts = ns.ls(serverName, "cct");
-    if (contracts.length > 0) {
-      output.push("");
-      output.push(`-- [${serverName}] (${level}), ${fullPath}`);
-
-      for (let i = 0; i < contracts.length; i++) {
-        output.push(
-          "-- " +
-            contracts[i] +
-            ` (${ns.codingcontract.getContractType(contracts[i], serverName)})`
-        );
+  let servers = await RecursiveGetServers(ns, ["home"], "home");
+  for (let i = 0; i < servers.length; i++) {
+    let contracts = ns.ls(servers[i], "cct");
+    for (let j = 0; j < contracts.length; j++) {
+      let contractType = ns.codingcontract.getContractType(
+        contracts[j],
+        servers[i]
+      );
+      switch (contractType) {
+        case "Unique Paths in a Grid I":
+          ns.run(
+            "/contracts/UniquePathsinaGrid.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
+          break;
+        case "Spiralize Matrix":
+          ns.run("/contracts/SpiralizeMatrix.js", 1, contracts[j], servers[i]);
+          await ns.sleep(1000);
+          break;
+        case "FindLargestPrimeFactor.js":
+          ns.run(
+            "/contracts/FindLargestPrimeFactor.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
+          break;
+        case "MergeOverlappingIntervals.js":
+          ns.run(
+            "/contracts/MergeOverlappingIntervals.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
+          break;
+        // case "SanitizeParenthesesInExpression.js":
+        // ns.run(
+        //   "/contracts/SanitizeParenthesesInExpression.js",
+        //   1,
+        //   contracts[j],
+        //   servers[i]
+        // );
+        // await ns.sleep(1000);
+        // break;
+        case "SubarraywithMaximumSum.js":
+          ns.run(
+            "/contracts/SubarraywithMaximumSum.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
+          break;
+        case "Total Ways to Sum":
+          ns.run("/contracts/TotalWaysToSum.js", 1, contracts[j], servers[i]);
+          await ns.sleep(100);
+          break;
+        default:
+          ns.tprint(
+            `Unhandled contract '${contracts[j]}' (${contractType}), on server: ${servers[i]}`
+          );
+          break;
       }
     }
-
-    var servers = ns.scan(serverName);
-    for (var i = 0; i < servers.length; i++) {
-      var server = servers[i];
-
-      if (knownServers.indexOf(server) == -1) {
-        knownServers.push(server);
-        await RecursiveGetServers(knownServers, [...path], server, level + 1);
-      }
-    }
-
-    if (serverName != "home") path.pop();
   }
-
-  let output = [];
-  await RecursiveGetServers(["home"], [], "home", 0);
-  let outputString = "Displaying all contracts";
-  for (let i = 0; i < output.length; i++) {
-    outputString += "\n" + output[i];
-  }
-
-  ns.tprint(outputString);
 }

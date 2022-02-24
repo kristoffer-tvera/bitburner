@@ -5,11 +5,14 @@ export async function main(ns) {
   let industry = "Tobacco";
 
   //check if you have 170b
-  //300000000000
   let corp = ns.corporation.getCorporation();
-  if (corp.funds < 170000000000) {
-    ns.alert("This operation costs 170b");
+  if (corp.funds < 325000000000) {
+    ns.alert("This operation costs 325b");
     return;
+  }
+
+  for (let i = 0; i < 5; i++) {
+    ns.corporation.levelUpgrade("Smart Storage");
   }
 
   ns.corporation.expandIndustry(industry, industry);
@@ -24,7 +27,7 @@ export async function main(ns) {
     }
     ns.corporation.setSmartSupply(industry, cities[i], true);
 
-    while (ns.corporation.getWarehouse(industry, cities[i]).size < 599) {
+    while (ns.corporation.getWarehouse(industry, cities[i]).size < 2199) {
       ns.corporation.upgradeWarehouse(industry, cities[i]);
     }
 
@@ -66,13 +69,13 @@ export async function main(ns) {
       2
     );
 
-    ns.corporation.buyMaterial(industry, cities[i], "Hardware", 160);
-    ns.corporation.buyMaterial(industry, cities[i], "Robots", 39);
-    ns.corporation.buyMaterial(industry, cities[i], "AI Cores", 96);
-    ns.corporation.buyMaterial(industry, cities[i], "Real Estate", 1920);
+    ns.corporation.buyMaterial(industry, cities[i], "Hardware", 586);
+    ns.corporation.buyMaterial(industry, cities[i], "Robots", 140);
+    ns.corporation.buyMaterial(industry, cities[i], "AI Cores", 352);
+    ns.corporation.buyMaterial(industry, cities[i], "Real Estate", 7040);
 
     while (
-      ns.corporation.getMaterial(industry, cities[i], "Hardware").qty < 100
+      ns.corporation.getMaterial(industry, cities[i], "Hardware").qty < 2000
     ) {
       await ns.sleep(500);
     }
@@ -82,4 +85,31 @@ export async function main(ns) {
     ns.corporation.buyMaterial(industry, cities[i], "AI Cores", 0);
     ns.corporation.buyMaterial(industry, cities[i], "Real Estate", 0);
   }
+
+  let upgrades = [
+    "FocusWires",
+    "Neural Accelerators",
+    "Speech Processor Implants",
+    "Nuoptimal Nootropic Injector Implants",
+    "Smart Factories",
+    "Project Insight",
+  ];
+
+  for (let j = 0; j < 17; j++) {
+    for (let i = 0; i < upgrades.length; i++) {
+      ns.corporation.levelUpgrade(upgrades[i]);
+    }
+  }
+
+  ns.corporation.makeProduct(
+    "Tobacco",
+    "Aevum",
+    "Tobacco v0",
+    1000000000,
+    1000000000
+  );
+
+  ns.spawn("/corp/tobacco.js", 1, "--count", 3);
+
+  ns.alert("Tobacco established");
 }

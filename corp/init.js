@@ -49,7 +49,7 @@ export async function main(ns) {
       "MP"
     );
 
-    let employee1 = ns.orporation.hireEmployee("Agriculture", cities[i]);
+    let employee1 = ns.corporation.hireEmployee("Agriculture", cities[i]);
     let employee2 = ns.corporation.hireEmployee("Agriculture", cities[i]);
     let employee3 = ns.corporation.hireEmployee("Agriculture", cities[i]);
 
@@ -91,17 +91,74 @@ export async function main(ns) {
     ns.corporation.hireAdVert("Agriculture");
   }
 
+  let employeeProductionMultiplierReady = false;
+  while (!employeeProductionMultiplierReady) {
+    let office = ns.corporation.getOffice("Agriculture", "Ishima");
+    let employeeName = office.employees[0];
+    let employee = ns.corporation.getEmployee(
+      "Agriculture",
+      "Ishima",
+      employeeName
+    );
+
+    let score = employee.mor + employee.hap + employee.ene;
+
+    if (score > 295) {
+      employeeProductionMultiplierReady = true;
+    }
+
+    ns.toast("Waiting for employee stats to fill up (rugpull part 1)");
+    await ns.sleep(3000);
+  }
+
+  for (let i = 0; i < cities.length; i++) {
+    ns.corporation.sellMaterial(
+      "Agriculture",
+      cities[i],
+      "Food",
+      "MAX",
+      "MP*2"
+    );
+
+    ns.corporation.sellMaterial(
+      "Agriculture",
+      cities[i],
+      "Plants",
+      "MAX",
+      "MP*2"
+    );
+  }
+
+  while (
+    ns.corporation.getWarehouse("Agriculture", "Sector-12").sizeUsed < 295
+  ) {
+    await ns.sleep(3000);
+    ns.toast("Waiting for storage to fill up (rugpull part 2)");
+  }
+
+  for (let i = 0; i < cities.length; i++) {
+    ns.corporation.sellMaterial("Agriculture", cities[i], "Food", "MAX", "MP");
+
+    ns.corporation.sellMaterial(
+      "Agriculture",
+      cities[i],
+      "Plants",
+      "MAX",
+      "MP"
+    );
+  }
+
   let awaitingInvestmentOffer = true;
   while (awaitingInvestmentOffer) {
-    ns.toast("Awaiting investment offer (>3b)");
     let offer = ns.corporation.getInvestmentOffer();
     if (offer.round === 1 && offer.funds > 300000000000) {
       ns.corporation.acceptInvestmentOffer();
       awaitingInvestmentOffer = false;
     }
 
-    await ns.sleep(2500);
+    ns.toast("Awaiting investment offer (rugpull part 3)");
+    await ns.sleep(3000);
   }
 
-  // await Base.expandOffice(ns, data.count, 'RealEstate');
+  ns.alert("Done");
 }
