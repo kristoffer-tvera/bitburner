@@ -24,7 +24,7 @@ export async function main(ns) {
           ns.run("/contracts/SpiralizeMatrix.js", 1, contracts[j], servers[i]);
           await ns.sleep(1000);
           break;
-        case "FindLargestPrimeFactor.js":
+        case "Find Largest Prime Factor":
           ns.run(
             "/contracts/FindLargestPrimeFactor.js",
             1,
@@ -33,7 +33,7 @@ export async function main(ns) {
           );
           await ns.sleep(1000);
           break;
-        case "MergeOverlappingIntervals.js":
+        case "Merge Overlapping Intervals":
           ns.run(
             "/contracts/MergeOverlappingIntervals.js",
             1,
@@ -51,7 +51,16 @@ export async function main(ns) {
         // );
         // await ns.sleep(1000);
         // break;
-        case "SubarraywithMaximumSum.js":
+        // case "Generate IP Addresses":
+        // ns.run(
+        //   "GenerateIpAddresses.js",
+        //   1,
+        //   contracts[j],
+        //   servers[i]
+        // );
+        // await ns.sleep(1000);
+        // break;
+        case "Subarray with Maximum Sum":
           ns.run(
             "/contracts/SubarraywithMaximumSum.js",
             1,
@@ -62,7 +71,29 @@ export async function main(ns) {
           break;
         case "Total Ways to Sum":
           ns.run("/contracts/TotalWaysToSum.js", 1, contracts[j], servers[i]);
-          await ns.sleep(100);
+          await ns.sleep(1000);
+          break;
+        case "Algorithmic Stock Trader I":
+          ns.run(
+            "/contracts/AlgorithmicStockTrader.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
+          break;
+        case "Array Jumping Game":
+          ns.run("/contracts/ArrayJumpingGame.js", 1, contracts[j], servers[i]);
+          await ns.sleep(1000);
+          break;
+        case "Minimum Path Sum in a Triangle":
+          ns.run(
+            "/contracts/MinimumPathSumInATriangle.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
           break;
         default:
           ns.tprint(

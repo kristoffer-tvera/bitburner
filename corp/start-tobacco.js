@@ -6,10 +6,12 @@ export async function main(ns) {
 
   //check if you have 170b
   let corp = ns.corporation.getCorporation();
-  if (corp.funds < 325000000000) {
-    ns.alert("This operation costs 325b");
+  if (corp.funds < 600000000000) {
+    ns.alert("This operation costs 600b");
     return;
   }
+
+  ns.tprint("Starting corp funs: " + ns.corporation.getCorporation().funds);
 
   for (let i = 0; i < 5; i++) {
     ns.corporation.levelUpgrade("Smart Storage");
@@ -95,7 +97,7 @@ export async function main(ns) {
     "Project Insight",
   ];
 
-  for (let j = 0; j < 17; j++) {
+  for (let j = 0; j < 10; j++) {
     for (let i = 0; i < upgrades.length; i++) {
       ns.corporation.levelUpgrade(upgrades[i]);
     }
@@ -109,7 +111,7 @@ export async function main(ns) {
     1000000000
   );
 
-  ns.spawn("/corp/tobacco.js", 1, "--count", 3);
-
+  ns.tprint("Ending corp funs: " + ns.corporation.getCorporation().funds);
   ns.alert("Tobacco established");
+  ns.spawn("/corp/tobacco.js", 1, "--count", 2);
 }

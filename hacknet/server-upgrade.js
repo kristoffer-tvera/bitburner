@@ -120,8 +120,6 @@ export async function main(ns) {
         default:
           break;
       }
-    } else {
-      ns.toast(upgradeToPerform);
     }
 
     let hashes = ns.hacknet.numHashes();
@@ -129,13 +127,13 @@ export async function main(ns) {
 
     while (0.8 * maxHashes < hashes) {
       ns.hacknet.spendHashes("Sell for Money");
-      ns.toast("Sold hashes for money to prevent capping");
+      ns.print("Sold hashes for money to prevent capping");
 
       hashes = ns.hacknet.numHashes();
       maxHashes = ns.hacknet.hashCapacity();
-      await ns.sleep(100);
+      await ns.sleep(50);
     }
 
-    await ns.sleep(2750);
+    await ns.sleep(200);
   }
 }
