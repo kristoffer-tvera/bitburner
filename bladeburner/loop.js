@@ -4,11 +4,14 @@ import { GetActions } from "/bladeburner/base.js";
 /** @param {NS} ns **/
 export async function main(ns) {
   while (true) {
+    ns.clearLog();
+    ns.disableLog("sleep");
+
     let actions = GetActions(ns);
     const [current, max] = ns.bladeburner.getStamina();
     let currentAction = ns.bladeburner.getCurrentAction();
     let targetAction = actions.find(
-      (action) => action.successChance[0] > 0.75 && action.remaining > 0
+      (action) => action.successChance[0] > 0.8 && action.remaining > 0
     );
     if (!targetAction) {
       targetAction = {

@@ -1,7 +1,13 @@
+import { cities } from "/constants.js";
+
 /** @param {NS} ns **/
 export function GetActions(ns) {
   let index = 0;
   let actions = [];
+  // for (let c = 0; c < cities.length; c++) {
+  //   let city = cities[c];
+  // }
+
   for (let i = 0; i < ns.bladeburner.getContractNames().length; i++) {
     let action = ns.bladeburner.getContractNames()[i];
     let successChance = ns.bladeburner.getActionEstimatedSuccessChance(
@@ -45,10 +51,12 @@ export function GetActions(ns) {
   }
 
   actions.sort((action1, action2) => {
-    let successChance = action1.successChance[0] - action2.successChance[0];
-    let index = action1.index - action2.index;
-    if (successChance != 0) return successChance;
-    return index;
+    // let successChance = action1.successChance[0] - action2.successChance[0];
+    // let index = action1.index - action2.index;
+    // if (successChance != 0) return successChance;
+    // return index;
+
+    return action2.index - action1.index;
   });
   return actions;
 }
