@@ -16,9 +16,9 @@ export async function DeployScript(ns, server, script) {
 
   let freeRam = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
 
-  if (server === "home") {
-    freeRam -= 12;
-  }
+  // if (server === "home") {
+  //   freeRam -= 12;
+  // }
 
   var threadCount = Math.floor(freeRam / ns.getScriptRam(script, server));
   if (threadCount > 0) {

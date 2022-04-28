@@ -1,11 +1,14 @@
-import { cities } from "/constants.js";
-import { GetActions } from "/bladeburner/base.js";
+import { GetActions, SwitchCity, SpendSkillpoints } from "/bladeburner/base.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
+  let iterationCount = 0;
   while (true) {
+    iterationCount++;
     ns.clearLog();
     ns.disableLog("sleep");
+
+    SwitchCity(ns);
 
     let actions = GetActions(ns);
     const [current, max] = ns.bladeburner.getStamina();
@@ -48,5 +51,9 @@ export async function main(ns) {
     }
 
     await ns.sleep(sleepTime);
+
+    if (iterationCount % 25 === 0) {
+      SpendSkillpoints(ns);
+    }
   }
 }

@@ -11,8 +11,8 @@ export async function main(ns) {
 
   while (true) {
     ns.clearLog();
-    ns.disableLog("sleep");
-    // ns.disableLog("setMemberTask");
+    // ns.disableLog("sleep");
+    ns.disableLog("ALL");
     while (ns.gang.canRecruitMember()) {
       let member = "Member-" + ns.gang.getMemberNames().length;
       ns.gang.recruitMember(member);
@@ -21,6 +21,7 @@ export async function main(ns) {
 
     let gangMembers = ns.gang.getMemberNames();
     let bestHacker = { hack: 0 };
+    let hackers = [];
     for (let i = 0; i < gangMembers.length; i++) {
       let member = gangMembers[i];
       let info = ns.gang.getMemberInformation(member);
@@ -28,6 +29,8 @@ export async function main(ns) {
       if (info.hack > bestHacker.hack) {
         bestHacker = info;
       }
+
+      hackers.push(info);
 
       ns.print(
         `Gang Member '${member}' (str: ${info.str}, chr: ${info.cha}, hack: ${
@@ -83,47 +86,37 @@ export async function main(ns) {
         continue;
       }
 
-      //   if (info.cha < 10) {
-      //     ns.gang.setMemberTask(member, "Train Charisma");
-      //     continue;
-      //   }
-
-      //   if (info.str < 10) {
-      //     ns.gang.setMemberTask(member, "Train Combat");
-      //     continue;
-      //   }
-
-      if (info.hack < 500) {
+      if (info.hack < 400) {
         ns.gang.setMemberTask(member, "Train Hacking");
         continue;
       }
 
-      if (info.hack < 1000) {
+      if (info.hack < 500) {
         ns.gang.setMemberTask(member, "Phishing");
         continue;
       }
 
-      if (info.hack < 2000) {
+      if (info.hack < 600) {
         ns.gang.setMemberTask(member, "Identity Theft");
         continue;
       }
 
-      if (info.hack < 3000) {
+      if (info.hack < 700) {
         ns.gang.setMemberTask(member, "DDoS Attacks");
         continue;
       }
 
-      if (info.hack < 4000) {
+      if (info.hack < 800) {
         ns.gang.setMemberTask(member, "Fraud & Counterfeiting");
         continue;
       }
 
-      if (info.hack < 15000) {
+      if (info.hack < 5000) {
         ns.gang.setMemberTask(member, "Money Laundering");
         continue;
       }
 
-      if (info.hack < 45000) {
+      if (info.hack < 15000) {
         ns.gang.setMemberTask(member, "Cyberterrorism");
         continue;
       }
@@ -131,11 +124,22 @@ export async function main(ns) {
       ns.gang.setMemberTask(member, "Money Laundering");
     }
 
-    ns.print(`Best hacker: ${bestHacker.name}`);
+    hackers = hackers.sort((a, b) => {
+      return b.hack - a.hack;
+    });
 
     let gangInfo = ns.gang.getGangInformation();
-    if (bestHacker.hack > 0 && gangInfo.wantedLevel > 50) {
-      ns.gang.setMemberTask(bestHacker.name, "Ethical Hacking");
+    // if (bestHacker.hack > 0 && gangInfo.wantedLevel > 50) {
+    //   ns.gang.setMemberTask(bestHacker.name, "Ethical Hacking");
+    // }
+
+    if (hackers[0].hack > 0 && gangInfo.wantedLevel > 50) {
+      ns.gang.setMemberTask(hackers[0].name, "Ethical Hacking");
+      ns.print("Using " + hackers[0].name + " to decrease wanted level");
+    }
+    if (hackers[1].hack > 0 && gangInfo.wantedLevel > 100) {
+      ns.gang.setMemberTask(hackers[1].name, "Ethical Hacking");
+      ns.print("Using " + hackers[1].name + " to decrease wanted level");
     }
 
     await ns.sleep(1000);

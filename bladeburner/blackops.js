@@ -5,7 +5,7 @@ export async function main(ns) {
     let time = ns.bladeburner.getActionTime("BlackOps", blackops[i]);
     let started = ns.bladeburner.startAction("BlackOps", blackops[i]);
     if (started) {
-      await ns.sleep(time);
+      await ns.sleep(time + 1000);
     }
   }
 }

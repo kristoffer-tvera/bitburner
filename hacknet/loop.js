@@ -1,9 +1,7 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-  let flags = ns.flags([["autobuy", false]]);
-  if (!flags.autobuy) {
-    flags.autobuy = await ns.prompt("Automatically buy upgrades?");
-  }
+  let flags = ns.flags([["upgrade", false]]);
+  ns.disableLog("sleep");
 
   while (true) {
     let upgradeToPerform = "";
@@ -99,7 +97,7 @@ export async function main(ns) {
       autoUpgradeType = "newServer";
     }
 
-    if (flags.autobuy) {
+    if (flags.upgrade) {
       switch (autoUpgradeType) {
         case "newServer":
           ns.hacknet.purchaseNode();
