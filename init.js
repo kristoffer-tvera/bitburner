@@ -18,7 +18,12 @@ export async function main(ns) {
   }
 
   if (ns.gang.inGang()) {
-    ns.exec("/gang/loop.js", "home");
+    if (ns.gang.getGangInformation().isHacking) {
+      ns.exec("/gang/loop.js", "home");
+    } else {
+      ns.exec("/gang/alt-loop.js", "home");
+    }
+
     await ns.sleep(1000);
   }
 

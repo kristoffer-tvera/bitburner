@@ -86,6 +86,15 @@ export async function main(ns) {
           ns.run("/contracts/ArrayJumpingGame.js", 1, contracts[j], servers[i]);
           await ns.sleep(1000);
           break;
+        case "Array Jumping Game II":
+          ns.run(
+            "/contracts/ArrayJumpingGame2.js",
+            1,
+            contracts[j],
+            servers[i]
+          );
+          await ns.sleep(1000);
+          break;
         case "Minimum Path Sum in a Triangle":
           ns.run(
             "/contracts/MinimumPathSumInATriangle.js",

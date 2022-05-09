@@ -12,7 +12,7 @@ export async function main(ns) {
         continue;
       }
 
-      if (stats.shock > 5) {
+      if (stats.shock > 0) {
         ns.sleeve.setToShockRecovery(i);
         continue;
       }

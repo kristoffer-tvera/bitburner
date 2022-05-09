@@ -129,9 +129,9 @@ export async function main(ns) {
 
       hashes = ns.hacknet.numHashes();
       maxHashes = ns.hacknet.hashCapacity();
-      await ns.sleep(50);
+      await ns.sleep(5);
     }
 
-    await ns.sleep(200);
+    await ns.sleep(20);
   }
 }
