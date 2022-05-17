@@ -3,7 +3,14 @@ export async function main(ns) {
   let flags = ns.flags([["upgrade", false]]);
   ns.disableLog("sleep");
 
+  let startTime = new Date();
   while (true) {
+    let duration = Math.abs(new Date() - startTime);
+    let durationInHours = Math.ceil(duration / (1000 * 60 * 60));
+    if (durationInHours > 6) {
+      flags.upgrade = false;
+    }
+
     let upgradeToPerform = "";
     let bestUpgradeValue = 0;
     let playerProductionMultiplier = 1;
@@ -129,9 +136,8 @@ export async function main(ns) {
 
       hashes = ns.hacknet.numHashes();
       maxHashes = ns.hacknet.hashCapacity();
-      await ns.sleep(5);
     }
 
-    await ns.sleep(20);
+    await ns.sleep(100);
   }
 }

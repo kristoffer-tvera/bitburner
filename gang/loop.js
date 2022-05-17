@@ -1,5 +1,8 @@
+import { GetRandomName } from "/gang/base";
+
 /** @param {NS} ns **/
 export async function main(ns) {
+  ns.disableLog("ALL");
   let initialTask = "Train Hacking";
   let defaultEquipment = [
     "NUKE Rootkit",
@@ -12,77 +15,47 @@ export async function main(ns) {
   while (true) {
     ns.clearLog();
     // ns.disableLog("sleep");
-    ns.disableLog("ALL");
     while (ns.gang.canRecruitMember()) {
-      let member = "Member-" + ns.gang.getMemberNames().length;
+      let member = GetRandomName();
       ns.gang.recruitMember(member);
       ns.gang.setMemberTask(member, initialTask);
     }
 
     let gangMembers = ns.gang.getMemberNames();
-    let bestHacker = { hack: 0 };
     let hackers = [];
     for (let i = 0; i < gangMembers.length; i++) {
       let member = gangMembers[i];
       let info = ns.gang.getMemberInformation(member);
 
-      if (info.hack > bestHacker.hack) {
-        bestHacker = info;
-      }
-
       hackers.push(info);
 
+      let ascensionResult = ns.gang.getAscensionResult(member);
+      if (!ascensionResult) {
+        ascensionResult = { hack: 1 };
+      }
+
       ns.print(
-        `Gang Member '${member}' (str: ${info.str}, chr: ${info.cha}, hack: ${
+        `Gang Member '${member}' (hack: ${
           info.hack
-        }, hack-mult: ${info.hack_asc_mult}, hack-exp: ${
-          info.hack_exp
-        }) will ascend on ${4000 * info.hack_asc_mult} exp`
+        }, ascend multiplier: hack ${(ascensionResult.hack * 100 - 100).toFixed(
+          2
+        )}), doing "${info.task}"`
       );
 
-      if (info.hack_exp > 4000 * info.hack_asc_mult) {
+      if (ascensionResult.hack > 1.1) {
         ns.gang.ascendMember(member);
         ns.gang.setMemberTask(member, initialTask);
 
-        if (info.hack_asc_mult > 5) {
-          //   while (
-          //     ns.gang.getEquipmentCost(defaultEquipment[0]) > ns.getPlayer().money
-          //   ) {
-          //     await ns.sleep(500);
-          //   }
-          if (
-            ns.gang.getEquipmentCost(defaultEquipment[0]) > ns.getPlayer().money
-          ) {
-            ns.gang.purchaseEquipment(member, defaultEquipment[0]);
-          }
-        }
+        continue;
+      }
 
-        if (info.hack_asc_mult > 10) {
-          //   while (
-          //     ns.gang.getEquipmentCost(defaultEquipment[1]) > ns.getPlayer().money
-          //   ) {
-          //     await ns.sleep(500);
-          //   }
-          if (
-            ns.gang.getEquipmentCost(defaultEquipment[1]) > ns.getPlayer().money
-          ) {
-            ns.gang.purchaseEquipment(member, defaultEquipment[1]);
-          }
-        }
+      if (info.hack < 50) {
+        ns.gang.setMemberTask(member, "Train Hacking");
+        continue;
+      }
 
-        if (info.hack_asc_mult > 15) {
-          //   while (
-          //     ns.gang.getEquipmentCost(defaultEquipment[2]) > ns.getPlayer().money
-          //   ) {
-          //     await ns.sleep(500);
-          //   }
-          if (
-            ns.gang.getEquipmentCost(defaultEquipment[2]) > ns.getPlayer().money
-          ) {
-            ns.gang.purchaseEquipment(member, defaultEquipment[2]);
-          }
-        }
-
+      if (info.hack < 60) {
+        ns.gang.setMemberTask(member, "Ransomware");
         continue;
       }
 
@@ -116,8 +89,23 @@ export async function main(ns) {
         continue;
       }
 
+      // if (info.hack < 9000) {
+      //   ns.gang.setMemberTask(member, "Cyberterrorism");
+      //   continue;
+      // }
+
+      // if (info.hack < 10000) {
+      //   ns.gang.setMemberTask(member, "Territory Warfare");
+      //   continue;
+      // }
+
       if (info.hack < 15000) {
         ns.gang.setMemberTask(member, "Cyberterrorism");
+        continue;
+      }
+
+      if (info.hack < 17500) {
+        ns.gang.setMemberTask(member, "Territory Warfare");
         continue;
       }
 
@@ -129,19 +117,23 @@ export async function main(ns) {
     });
 
     let gangInfo = ns.gang.getGangInformation();
-    // if (bestHacker.hack > 0 && gangInfo.wantedLevel > 50) {
-    //   ns.gang.setMemberTask(bestHacker.name, "Ethical Hacking");
-    // }
 
-    if (hackers[0].hack > 0 && gangInfo.wantedLevel > 50) {
+    if (gangInfo.wantedLevel > 5 && hackers.length > 0) {
       ns.gang.setMemberTask(hackers[0].name, "Ethical Hacking");
-      ns.print("Using " + hackers[0].name + " to decrease wanted level");
     }
-    if (hackers[1].hack > 0 && gangInfo.wantedLevel > 100) {
+    if (gangInfo.wantedLevel > 10 && hackers.length > 1) {
       ns.gang.setMemberTask(hackers[1].name, "Ethical Hacking");
-      ns.print("Using " + hackers[1].name + " to decrease wanted level");
+    }
+    if (gangInfo.wantedLevel > 25 && hackers.length > 2) {
+      ns.gang.setMemberTask(hackers[2].name, "Ethical Hacking");
+    }
+    if (gangInfo.wantedLevel > 50 && hackers.length > 3) {
+      ns.gang.setMemberTask(hackers[3].name, "Ethical Hacking");
+    }
+    if (gangInfo.wantedLevel > 75 && hackers.length > 4) {
+      ns.gang.setMemberTask(hackers[4].name, "Ethical Hacking");
     }
 
-    await ns.sleep(1000);
+    await ns.sleep(10000);
   }
 }

@@ -1,74 +1,76 @@
+import { GetRandomName } from "/gang/base";
+
 /** @param {NS} ns **/
 export async function main(ns) {
   let initialTask = "Train Combat";
+  ns.disableLog("ALL");
 
   while (true) {
     ns.clearLog();
-    // ns.disableLog("sleep");
-    ns.disableLog("ALL");
     while (ns.gang.canRecruitMember()) {
-      let member = "Member-" + ns.gang.getMemberNames().length;
+      let member = GetRandomName();
       ns.gang.recruitMember(member);
       ns.gang.setMemberTask(member, initialTask);
     }
 
     let gangMembers = ns.gang.getMemberNames();
-    let bestHacker = { str: 0 };
     let hackers = [];
     for (let i = 0; i < gangMembers.length; i++) {
       let member = gangMembers[i];
       let info = ns.gang.getMemberInformation(member);
 
-      if (info.str > bestHacker.str) {
-        bestHacker = info;
-      }
-
       hackers.push(info);
 
-      // let ascendTreshhold = 60 * info.str_asc_mult * info.str_asc_mult;
-      let ascendTreshhold = 80 * info.str_asc_mult;
+      let ascensionResult = ns.gang.getAscensionResult(member);
+      if (!ascensionResult) {
+        ascensionResult = { str: 1 };
+      }
 
       ns.print(
-        `Gang Member '${member}' (str: ${info.str}, str_exp: ${info.str_exp}, will ascend on ${ascendTreshhold} str`
+        `Gang Member '${member}' (str: ${info.str}, ascend multiplier: str ${(
+          ascensionResult.str * 100 -
+          100
+        ).toFixed(2)}), doing "${info.task}"`
       );
 
-      if (info.str > ascendTreshhold) {
+      if (ascensionResult.str > 1.1) {
+        // 10% increased str
         ns.gang.ascendMember(member);
         ns.gang.setMemberTask(member, initialTask);
         continue;
       }
 
-      if (info.str < 80) {
+      if (info.str < 450) {
         ns.gang.setMemberTask(member, initialTask);
         continue;
       }
 
-      if (info.str < 100) {
+      if (info.str < 400) {
         ns.gang.setMemberTask(member, "Mug People");
         continue;
       }
 
-      if (info.str < 200) {
+      if (info.str < 450) {
         ns.gang.setMemberTask(member, "Strongarm Civilians");
         continue;
       }
 
-      if (info.str < 300) {
+      if (info.str < 500) {
         ns.gang.setMemberTask(member, "Run a Con");
         continue;
       }
 
-      if (info.str < 400) {
+      if (info.str < 550) {
         ns.gang.setMemberTask(member, "Armed Robbery");
         continue;
       }
 
-      if (info.str < 500) {
+      if (info.str < 600) {
         ns.gang.setMemberTask(member, "Traffick Illegal Arms");
         continue;
       }
 
-      if (info.str < 600) {
+      if (info.str < 650) {
         ns.gang.setMemberTask(member, "Threaten & Blackmail");
         continue;
       }
@@ -78,12 +80,12 @@ export async function main(ns) {
         continue;
       }
 
-      if (info.str < 2500) {
+      if (info.str < 3500) {
         ns.gang.setMemberTask(member, "Terrorism");
         continue;
       }
 
-      ns.gang.setMemberTask(member, "Human Trafficking");
+      ns.gang.setMemberTask(member, "Terrorism");
     }
 
     hackers = hackers.sort((a, b) => {
@@ -92,13 +94,20 @@ export async function main(ns) {
 
     let gangInfo = ns.gang.getGangInformation();
 
-    if (hackers[0].hack > 0 && gangInfo.wantedLevel > 2) {
+    if (gangInfo.wantedLevel > 5 && hackers.length > 0) {
       ns.gang.setMemberTask(hackers[0].name, "Vigilante Justice");
-      ns.print("Using " + hackers[0].name + " to decrease wanted level");
     }
-    if (hackers[1].hack > 0 && gangInfo.wantedLevel > 50) {
+    if (gangInfo.wantedLevel > 10 && hackers.length > 1) {
       ns.gang.setMemberTask(hackers[1].name, "Vigilante Justice");
-      ns.print("Using " + hackers[1].name + " to decrease wanted level");
+    }
+    if (gangInfo.wantedLevel > 25 && hackers.length > 2) {
+      ns.gang.setMemberTask(hackers[2].name, "Vigilante Justice");
+    }
+    if (gangInfo.wantedLevel > 50 && hackers.length > 3) {
+      ns.gang.setMemberTask(hackers[3].name, "Vigilante Justice");
+    }
+    if (gangInfo.wantedLevel > 75 && hackers.length > 4) {
+      ns.gang.setMemberTask(hackers[4].name, "Vigilante Justice");
     }
 
     await ns.sleep(1000);

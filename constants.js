@@ -6,3 +6,8 @@ export const cities = [
   "New Tokyo",
   "Ishima",
 ];
+
+export const attackScript = "/attack/loop.js";
+export const attackScriptPort = 20;
+export const initialTarget = "foodnstuff";
+export const portStockStage = 14;

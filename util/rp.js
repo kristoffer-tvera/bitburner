@@ -1,17 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-  ns.disableLog("getServerMaxRam");
-  ns.disableLog("getServerRequiredHackingLevel");
-  ns.disableLog("getHackingLevel");
-  ns.disableLog("hasRootAccess");
-  ns.disableLog("getScriptRam");
-  ns.disableLog("fileExists");
-  ns.disableLog("getServerNumPortsRequired");
-  ns.disableLog("scriptRunning");
-  ns.disableLog("sleep");
-  ns.disableLog("scan");
-  ns.disableLog("scp");
-  ns.disableLog("exec");
+  ns.disableLog("ALL");
 
   let targetServers = ["CSEC", "avmnite-02h", "I.I.I.I", "run4theh111z"];
 
@@ -20,13 +9,21 @@ export async function main(ns) {
 
     if (
       targetServers.indexOf(serverName) >= 0 &&
-      ns.hasRootAccess(serverName)
+      ns.hasRootAccess(serverName) &&
+      ns.getServerSecurityLevel(serverName) <= ns.getPlayer().hacking
     ) {
-      let fullPath = "home;";
+      ns.singularity.connect("home");
       path.forEach(function (node) {
-        fullPath += "connect " + node + ";";
+        ns.singularity.connect(node);
       });
-      ns.tprint("Path to [" + serverName + "]: \n" + fullPath + "backdoor");
+      await ns.singularity.installBackdoor();
+      ns.tprint("Backdoored " + serverName);
+
+      // let fullPath = "home;";
+      // path.forEach(function (node) {
+      //   fullPath += "connect " + node + ";";
+      // });
+      // ns.tprint("Path to [" + serverName + "]: \n" + fullPath + "backdoor");
     }
 
     var servers = ns.scan(serverName);

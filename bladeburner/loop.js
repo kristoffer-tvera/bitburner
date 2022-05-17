@@ -2,11 +2,10 @@ import { GetActions, SwitchCity, SpendSkillpoints } from "/bladeburner/base.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  let iterationCount = 0;
+  ns.disableLog("sleep");
+
   while (true) {
-    iterationCount++;
     ns.clearLog();
-    ns.disableLog("sleep");
 
     SwitchCity(ns);
 
@@ -22,11 +21,6 @@ export async function main(ns) {
         type: "General",
       };
     }
-
-    ns.print("Actions:");
-    ns.print(actions);
-    ns.print("Target Actions");
-    ns.print(targetAction);
 
     let sleepTime =
       currentAction.type === "Idle"
@@ -50,10 +44,12 @@ export async function main(ns) {
       }
     }
 
+    if (sleepTime < 100) {
+      sleepTime = 100;
+    }
+
     await ns.sleep(sleepTime);
 
-    if (iterationCount % 25 === 0) {
-      SpendSkillpoints(ns);
-    }
+    SpendSkillpoints(ns);
   }
 }

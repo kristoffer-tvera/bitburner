@@ -8,16 +8,27 @@ export async function main(ns) {
     let player = ns.getPlayer();
     for (let i = 0; i < player.factions.length; i++) {
       let faction = player.factions[i];
-      let factionReputation = ns.getFactionRep(faction);
-      let augmentations = ns.getAugmentationsFromFaction(faction);
-      let getOwnedAugmentations = ns.getOwnedAugmentations(true);
+      let factionReputation = ns.singularity.getFactionRep(faction);
+      let augmentations = ns.singularity.getAugmentationsFromFaction(faction);
+      let getOwnedAugmentations = ns.singularity.getOwnedAugmentations(true);
       for (let j = 0; j < augmentations.length; j++) {
         let augmentation = augmentations[j];
-        let price = ns.getAugmentationPrice(augmentation);
-        let reputationRequirement = ns.getAugmentationRepReq(augmentation);
+        let price = ns.singularity.getAugmentationPrice(augmentation);
+        let reputationRequirement =
+          ns.singularity.getAugmentationRepReq(augmentation);
+
+        let pepe = ns.getaug;
 
         if (factionReputation < reputationRequirement) continue;
+        if (player.money < price) continue;
         if (getOwnedAugmentations.indexOf(augmentation) !== -1) continue;
+        if (
+          ns.singularity.getAugmentationRepReq(augmentation).length > 0 &&
+          getOwnedAugmentations.indexOf(
+            ns.singularity.getAugmentationRepReq(augmentation)
+          ) !== -1
+        )
+          continue;
 
         summary.push({
           Faction: faction,

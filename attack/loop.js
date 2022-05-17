@@ -13,10 +13,9 @@ export async function main(ns) {
       // await ns.sleep(Math.floor(Math.random()*1000));
     } else if (serverMoneyAvailable < serverMaxMoney) {
       //getServerMoneyAvailable
-      await ns.grow(target);
-      // await ns.sleep(Math.floor(Math.random()*1000));
+      await ns.grow(target, { stock: true });
     } else {
-      await ns.hack(target);
+      await ns.hack(target, { stock: true });
     }
   }
 }

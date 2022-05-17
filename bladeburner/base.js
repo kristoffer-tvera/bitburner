@@ -87,50 +87,53 @@ export function SwitchCity(ns) {
 /** @param {NS} ns **/
 export function SpendSkillpoints(ns) {
   let upgrades = [
-    { skillName: "Digital Observer", weight: 1 },
-    { skillName: "Blade's Intuition", weight: 0.75 },
-    { skillName: "Reaper", weight: 0.6 },
-    { skillName: "Evasive System", weight: 0.6 },
-    { skillName: "Overclock", weight: 0.3 },
-    { skillName: "Cloak", weight: 0.15 },
-    { skillName: "Short-Circuit", weight: 0.15 },
-    { skillName: "Hyperdrive", weight: 0.2 },
+    { skillName: "Digital Observer", weight: 1, limit: 999 },
+    { skillName: "Blade's Intuition", weight: 0.75, limit: 999 },
+    { skillName: "Reaper", weight: 0.6, limit: 999 },
+    { skillName: "Evasive System", weight: 0.6, limit: 999 },
+    { skillName: "Overclock", weight: 0.7, limit: 90 },
+    { skillName: "Cloak", weight: 0.15, limit: 30 },
+    { skillName: "Short-Circuit", weight: 0.15, limit: 30 },
+    { skillName: "Hyperdrive", weight: 0.2, limit: 20 },
   ];
 
-  for (let i = 1; i < upgrades.length; i++) {
-    const element = upgrades[i];
-    let currentWeight =
-      ns.bladeburner.getSkillUpgradeCost(element.skillName) / element.weight;
+  let failsafeIteration = 50;
 
-    ns.print(
-      `Skill: ${element.skillName} has a weighted value of ${currentWeight}`
-    );
-  }
-
-  let canUpgrade = true;
-  while (canUpgrade) {
-    let skillToUpgrade = upgrades[0];
-    for (let i = 1; i < upgrades.length; i++) {
-      const element = upgrades[i];
-      let currentWeight =
-        ns.bladeburner.getSkillUpgradeCost(element.skillName) / element.weight;
-      let bestWeight =
-        ns.bladeburner.getSkillUpgradeCost(skillToUpgrade.skillName) /
-        skillToUpgrade.weight;
-
-      if (currentWeight < bestWeight) {
-        skillToUpgrade = element;
-      }
+  while (true) {
+    if (failsafeIteration-- < 0) {
+      ns.print("Failsafe exit");
+      return;
     }
 
-    if (
-      ns.bladeburner.getSkillPoints() >=
-      ns.bladeburner.getSkillUpgradeCost(skillToUpgrade.skillName)
-    ) {
-      ns.bladeburner.upgradeSkill(skillToUpgrade.skillName);
-      ns.tprint("Upgrading " + skillToUpgrade.skillName);
+    let sortedSkillUpgrades = [];
+    for (let i = 0; i < upgrades.length; i++) {
+      const element = upgrades[i];
+
+      if (ns.bladeburner.getSkillLevel(element.skillName) >= element.limit)
+        continue;
+
+      sortedSkillUpgrades.push({
+        skillName: element.skillName,
+        weightScore:
+          ns.bladeburner.getSkillUpgradeCost(element.skillName) /
+          element.weight,
+      });
+    }
+
+    if (sortedSkillUpgrades.length === 0) return;
+
+    sortedSkillUpgrades.sort((a, b) => a.weightScore - b.weightScore);
+    let currentSkillPoints = ns.bladeburner.getSkillPoints();
+    let upgradeSkillCost = ns.bladeburner.getSkillUpgradeCost(
+      sortedSkillUpgrades[0].skillName
+    );
+
+    if (currentSkillPoints >= upgradeSkillCost) {
+      ns.bladeburner.upgradeSkill(sortedSkillUpgrades[0].skillName);
+      ns.tprint("Upgrading " + sortedSkillUpgrades[0].skillName);
+      ns.print("Upgrading " + sortedSkillUpgrades[0].skillName);
     } else {
-      canUpgrade = false;
+      return;
     }
   }
 }
