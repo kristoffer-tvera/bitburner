@@ -1,4 +1,4 @@
-import { Loop } from "/stocks/base.js";
+import { Loop, StartWork, Grow } from "/stocks/base.js";
 /** @param {NS} ns **/
 export async function main(ns) {
   ns.disableLog("ALL");
@@ -7,6 +7,7 @@ export async function main(ns) {
   let companyName = "Joe's Guns";
   let serverName = "joesguns";
   let field = "employee";
-
-  await Loop(ns, sym, companyName, serverName, field);
+  await Grow(ns, serverName);
+  StartWork(ns, companyName, field);
+  // await Loop(ns, sym, companyName, serverName, field);
 }

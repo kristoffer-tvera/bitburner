@@ -1,54 +1,74 @@
+import {
+  portServerMaxMoney,
+  portServerMinSecurityLevel,
+  portServerMoneyAvailable,
+  portServerSecurityLevel,
+  portTarget,
+  portAffectStockMarket,
+} from "/constants.js";
+
 /** @param {NS} ns **/
 export async function main(ns) {
-  ns.clearLog();
   ns.disableLog("ALL");
 
   var attackTarget = ns.args[0];
 
   if (attackTarget == "peek") {
+    return;
   }
 
   if (attackTarget) {
-    ns.clearPort(1);
-    await ns.writePort(1, attackTarget);
+    ns.clearPort(portTarget);
+    await ns.writePort(portTarget, attackTarget);
     ns.exit();
   }
 
   let i = 0;
   while (true) {
-    await ns.sleep(500);
+    ns.clearLog();
 
-    let target = ns.peek(1);
+    let target = ns.peek(portTarget);
 
     let serverMaxMoney = ns.getServerMaxMoney(target) * 0.75;
-    await ns.writePort(2, serverMaxMoney);
+    await ns.writePort(portServerMaxMoney, serverMaxMoney);
 
     let serverMinSecurityLevel = ns.getServerMinSecurityLevel(target) + 5;
-    await ns.writePort(3, serverMinSecurityLevel);
+    await ns.writePort(portServerMinSecurityLevel, serverMinSecurityLevel);
 
     let serverSecurityLevel = ns.getServerSecurityLevel(target);
-    await ns.writePort(4, serverSecurityLevel);
+    await ns.writePort(portServerSecurityLevel, serverSecurityLevel);
 
     let serverMoneyAvailable = ns.getServerMoneyAvailable(target);
-    await ns.writePort(5, serverMoneyAvailable);
+    await ns.writePort(portServerMoneyAvailable, serverMoneyAvailable);
+
+    let affectsStockMarket = ns.peek(portAffectStockMarket);
 
     ns.clearLog();
-    ns.print("[1]: " + ns.peek(1) + ", attackTarget");
+    ns.print("[1]: " + target + ", attackTarget");
     ns.print(
       "[2]: " +
-        ns
-          .peek(2)
-          .toLocaleString("en-US", { style: "currency", currency: "USD" }) +
+        serverMaxMoney.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        }) +
         ", getServerMaxMoney"
     );
-    ns.print("[3]: " + ns.peek(3) + ", getServerMinSecurityLevel");
-    ns.print("[4]: " + ns.peek(4) + ", getServerSecurityLevel");
+    ns.print("[3]: " + serverMinSecurityLevel + ", getServerMinSecurityLevel");
+    ns.print("[4]: " + serverSecurityLevel + ", getServerSecurityLevel");
     ns.print(
       "[5]: " +
-        ns
-          .peek(5)
-          .toLocaleString("en-US", { style: "currency", currency: "USD" }) +
+        serverMoneyAvailable.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        }) +
         ", getServerMoneyAvailable"
     );
+    ns.print(
+      "[6]: " +
+        affectsStockMarket +
+        ", affectsStockMarket: [growAffectsStockmarket, hackAffectsStockmarket]"
+    );
+
+    await ns.sleep(500);
   }
 }

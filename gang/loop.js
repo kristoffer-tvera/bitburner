@@ -14,7 +14,7 @@ export async function main(ns) {
 
   while (true) {
     ns.clearLog();
-    // ns.disableLog("sleep");
+    let gang = ns.gang.getGangInformation();
     while (ns.gang.canRecruitMember()) {
       let member = GetRandomName();
       ns.gang.recruitMember(member);
@@ -104,7 +104,7 @@ export async function main(ns) {
         continue;
       }
 
-      if (info.hack < 17500) {
+      if (info.hack < 17500 && gang.territory < 1) {
         ns.gang.setMemberTask(member, "Territory Warfare");
         continue;
       }

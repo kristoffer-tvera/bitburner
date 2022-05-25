@@ -39,4 +39,5 @@ export async function main(ns) {
   }
 
   await RecursiveGetServers(["home"], [], "home");
+  ns.singularity.connect("home");
 }
