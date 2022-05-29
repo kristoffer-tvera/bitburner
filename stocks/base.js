@@ -11,7 +11,7 @@ import {
  * @param {NS} ns
  * @param {string} sym
  **/
-export async function BuyStocks(ns, sym) {
+export function BuyStock(ns, sym) {
   let playerMoney = ns.getPlayer().money;
   let orders = ns.stock.getOrders();
   let price = ns.stock.getAskPrice(sym);
@@ -20,8 +20,8 @@ export async function BuyStocks(ns, sym) {
   let targetShareCount = maxShares;
 
   if (purchaseCost > playerMoney) {
-    let totalValue = await TotalValue(ns);
-    let budget = Math.max(100000, totalValue / 10);
+    let totalValue = TotalValue(ns) - 100000;
+    let budget = Math.max(100000000, totalValue / 10);
     targetShareCount = budget / price;
   }
 
@@ -32,6 +32,9 @@ export async function BuyStocks(ns, sym) {
   if (orders[sym]) {
     for (let i = 0; i < orders[sym].length; i++) {
       let order = orders[sym][i];
+
+      if (order.position !== "L") continue;
+
       ns.stock.cancelOrder(
         sym,
         order.shares,
@@ -43,9 +46,9 @@ export async function BuyStocks(ns, sym) {
   }
 
   ns.print(`Buying ${targetShareCount} stocks at ${price}`);
-  let sharesPurchased = ns.stock.buy(sym, targetShareCount);
-  if (sharesPurchased) {
-    ns.tprint(`Purchased ${targetShareCount} of ${sym} at ${price} each`);
+  let sharePurchasePrice = ns.stock.buy(sym, targetShareCount);
+  if (sharePurchasePrice) {
+    ns.print(`Purchased ${targetShareCount} of ${sym} at ${price} each`);
     let stopSellOrder = ns.stock.placeOrder(
       sym,
       targetShareCount,
@@ -54,7 +57,7 @@ export async function BuyStocks(ns, sym) {
       "Long"
     );
     if (stopSellOrder) {
-      ns.tprint(`Placed stop sell order on ${0.8 * price}`);
+      ns.print(`Placed stop sell order on ${0.8 * price}`);
     }
     let limitSellOrder = ns.stock.placeOrder(
       sym,
@@ -64,7 +67,7 @@ export async function BuyStocks(ns, sym) {
       "Long"
     );
     if (limitSellOrder) {
-      ns.tprint(`Placed limit sell order on ${1.2 * price}`);
+      ns.print(`Placed limit sell order on ${1.2 * price}`);
     }
   }
 
@@ -77,32 +80,65 @@ export async function BuyStocks(ns, sym) {
  **/
 export function ShortStock(ns, sym) {
   let playerMoney = ns.getPlayer().money;
+  let orders = ns.stock.getOrders();
   let price = ns.stock.getAskPrice(sym);
   let maxShares = ns.stock.getMaxShares(sym);
   let purchaseCost = ns.stock.getPurchaseCost(sym, maxShares, "Short");
   let targetShareCount = maxShares;
 
   if (purchaseCost > playerMoney) {
-    let budget = playerMoney - 100000;
+    let totalValue = TotalValue(ns) - 100000;
+    let budget = Math.max(100000000, totalValue / 10);
     targetShareCount = budget / price;
   }
 
-  while (
-    ns.stock.getPurchaseCost(sym, targetShareCount, "Short") > playerMoney
-  ) {
-    playerMoney = ns.getPlayer().money;
-    targetShareCount = targetShareCount * 0.95;
+  if (ns.stock.getPurchaseCost(sym, targetShareCount, "Short") > playerMoney) {
+    return;
+  }
 
-    /**
-     * This could lead to a endless loop if you for some reason end up having not enough money to short any shares.
-     */
-    if (targetShareCount < 100) {
-      throw "Too poor to dabble in stocks";
+  if (orders[sym]) {
+    for (let i = 0; i < orders[sym].length; i++) {
+      let order = orders[sym][i];
+
+      if (order.position !== "S") continue;
+
+      ns.stock.cancelOrder(
+        sym,
+        order.shares,
+        order.price,
+        order.type,
+        order.position
+      );
     }
   }
 
   ns.print(`Shorting ${targetShareCount} stocks at ${price}`);
-  return ns.stock.short(sym, targetShareCount);
+
+  let shareShortPrice = ns.stock.short(sym, targetShareCount);
+  if (shareShortPrice) {
+    ns.print(`Shorted ${targetShareCount} of ${sym} at ${price} each`);
+    let stopSellOrder = ns.stock.placeOrder(
+      sym,
+      targetShareCount,
+      1.2 * price,
+      "Stop Sell Order",
+      "Short"
+    );
+    if (stopSellOrder) {
+      ns.print(`Placed stop sell order on ${0.8 * price}`);
+    }
+    let limitSellOrder = ns.stock.placeOrder(
+      sym,
+      targetShareCount,
+      0.8 * price,
+      "Limit Sell Order",
+      "Short"
+    );
+    if (limitSellOrder) {
+      ns.print(`Placed limit sell order on ${1.2 * price}`);
+    }
+  }
+  return;
 }
 
 /**
@@ -134,26 +170,48 @@ export async function Hack(ns, target) {
  * @param {string} sym
  **/
 export function SellStock(ns, sym) {
-  let position = ns.stock.getPosition(sym);
-  let shareCount = position[0];
-  ns.print(`Selling ${shareCount} stocks at ${ns.stock.getPrice(sym)}`);
-  return ns.stock.sell(sym, shareCount);
+  let orders = ns.stock.getOrders();
+  const [shares, avgPx, sharesShort, avgPxShort] = ns.stock.getPosition(sym);
+  ns.print(`Selling ${shares} stocks at ${ns.stock.getPrice(sym)}`);
+
+  if (orders[sym]) {
+    for (let i = 0; i < orders[sym].length; i++) {
+      let order = orders[sym][i];
+
+      if (order.position !== "L") continue;
+
+      ns.stock.cancelOrder(
+        sym,
+        order.shares,
+        order.price,
+        order.type,
+        order.position
+      );
+    }
+  }
+
+  return ns.stock.sell(sym, shares);
 }
 
 /**
  * @param {NS} ns
  * @returns {number} TotalValueOfMoney
  **/
-export async function TotalValue(ns) {
+export function TotalValue(ns) {
   let sum = ns.getPlayer().money;
   let symbols = ns.stock.getSymbols();
   for (let i = 0; i < symbols.length; i++) {
     const [shares, avgPx, sharesShort, avgPxShort] = ns.stock.getPosition(
       symbols[i]
     );
-    if (shares == 0) continue;
-    let price = ns.stock.getPrice(symbols[i]);
-    sum += shares * price;
+
+    if (shares > 0) {
+      sum += shares * avgPx;
+    }
+
+    if (sharesShort > 0) {
+      sum += sharesShort * avgPxShort;
+    }
   }
 
   return sum;
@@ -164,7 +222,7 @@ export async function TotalValue(ns) {
  * @param {string} sym Stock symbol to print
  * @returns {string} Graphical representation of stock position
  **/
-export async function StockPositionToString(ns, sym) {
+export function StockPositionToString(ns, sym, position) {
   const strLength = 50;
   let orders = ns.stock.getOrders();
   if (!orders || !orders[sym] || orders[sym].length !== 2) return "No position";
@@ -173,11 +231,15 @@ export async function StockPositionToString(ns, sym) {
 
   let stockTradeOrders = orders[sym];
   let stopSellOrder = stockTradeOrders.find(
-    (order) => order.type === "Stop Sell Order"
+    (order) => order.type === "Stop Sell Order" && order.position === position
   );
   let limitSellOrder = stockTradeOrders.find(
-    (order) => order.type === "Limit Sell Order"
+    (order) => order.type === "Limit Sell Order" && order.position === position
   );
+
+  if (!stopSellOrder || !limitSellOrder) {
+    return "Invalid state";
+  }
 
   let span = Math.ceil(Math.abs(limitSellOrder.price - stopSellOrder.price));
   let currentValueMinusStop = Math.floor(Math.abs(price - stopSellOrder.price));
@@ -189,6 +251,7 @@ export async function StockPositionToString(ns, sym) {
     "|" +
     "]".padStart(strLength - fillPosition, "-");
 
+  if (position === "S") return str.split("").reverse().join("");
   return str;
 }
 
@@ -197,10 +260,27 @@ export async function StockPositionToString(ns, sym) {
  * @param {string} sym
  **/
 export function ShortSellStock(ns, sym) {
-  let position = ns.stock.getPosition(sym);
-  let shareCount = position[2];
-  ns.print(`Selling ${shareCount} stocks at ${ns.stock.getPrice(sym)}`);
-  return ns.stock.sellShort(sym, shareCount);
+  let orders = ns.stock.getOrders();
+  const [shares, avgPx, sharesShort, avgPxShort] = ns.stock.getPosition(sym);
+  ns.print(`Selling ${sharesShort} stocks at ${ns.stock.getPrice(sym)}`);
+
+  if (orders[sym]) {
+    for (let i = 0; i < orders[sym].length; i++) {
+      let order = orders[sym][i];
+
+      if (order.position !== "S") continue;
+
+      ns.stock.cancelOrder(
+        sym,
+        order.shares,
+        order.price,
+        order.type,
+        order.position
+      );
+    }
+  }
+
+  return ns.stock.sellShort(sym, sharesShort);
 }
 
 /**
@@ -246,7 +326,7 @@ export async function Loop(ns, sym, companyName, serverName, field) {
 
     switch (stage) {
       case 0: //buy stock (long) and start working
-        BuyStocks(ns, sym);
+        BuyStock(ns, sym);
         StartWork(ns, companyName, field);
         stage++;
         break;

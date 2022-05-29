@@ -109,7 +109,12 @@ export async function main(ns) {
         continue;
       }
 
-      ns.gang.setMemberTask(member, "Money Laundering");
+      if (info.hack < 80000 && gang.territory < 1) {
+        ns.gang.setMemberTask(member, "Money Laundering");
+        continue;
+      }
+
+      ns.gang.setMemberTask(member, "Cyberterrorism");
     }
 
     hackers = hackers.sort((a, b) => {

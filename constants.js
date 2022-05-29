@@ -7,6 +7,19 @@ export const cities = [
   "Ishima",
 ];
 
+export const programs = [
+  "BruteSSH.exe",
+  "FTPCrack.exe",
+  "relaySMTP.exe",
+  "HTTPWorm.exe",
+  "SQLInject.exe",
+  // "ServerProfiler.exe",
+  // "DeepscanV1.exe",
+  // "DeepscanV2.exe",
+  // "AutoLink.exe",
+  // "Formulas.exe",
+];
+
 export const attackScript = "/attack/loop.js";
 export const attackScriptPort = 20;
 export const initialTarget = "foodnstuff";

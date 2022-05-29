@@ -1,112 +1,137 @@
-import { TotalValue, StockPositionToString } from "/stocks/base.js";
+import {
+  StockPositionToString,
+  BuyStock,
+  SellStock,
+  ShortStock,
+  ShortSellStock,
+} from "/stocks/base.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
   ns.disableLog("sleep");
-  let tradeFee = 100000;
   let symbols = ns.stock.getSymbols();
 
   let stockPredictions = [];
 
   for (let i = 0; i < symbols.length; i++) {
     let sym = symbols[i];
-    stockPredictions[sym] = {
+    const [shares, avgPx, sharesShort, avgPxShort] = ns.stock.getPosition(sym);
+
+    // stockPredictions[sym] = {
+    //   sym,
+    //   shares,
+    //   avgPx,
+    //   sharesShort,
+    //   avgPxShort,
+    //   score: 0,
+    //   lastPrices: [],
+    //   lastPrice: ns.stock.getAskPrice(sym),
+    // };
+
+    stockPredictions.push({
+      sym,
+      shares,
+      avgPx,
+      sharesShort,
+      avgPxShort,
+      score: 0,
       lastPrices: [],
       lastPrice: ns.stock.getAskPrice(sym),
-    };
+    });
   }
 
+  let ready = false;
   while (true) {
     ns.clearLog();
     let orders = ns.stock.getOrders();
 
-    for (let i = 0; i < symbols.length; i++) {
-      let sym = symbols[i];
-      let price = ns.stock.getAskPrice(sym);
-      let stockHistory = stockPredictions[sym];
-      let direction = price > stockHistory.lastPrice ? 1 : -1;
+    for (let i = 0; i < stockPredictions.length; i++) {
+      const [shares, avgPx, sharesShort, avgPxShort] = ns.stock.getPosition(
+        stockPredictions[i].sym
+      );
 
-      stockHistory.lastPrices.push(direction);
-      stockHistory.lastPrice = price;
+      let price = ns.stock.getAskPrice(stockPredictions[i].sym);
+      let direction = price > stockPredictions[i].lastPrice ? 1 : -1;
 
-      if (stockHistory.lastPrices.length > 30) {
-        stockHistory.lastPrices.splice(0, 1);
+      stockPredictions[i].lastPrices.push(direction);
+      stockPredictions[i].lastPrice = price;
+
+      if (stockPredictions[i].lastPrices.length > 30) {
+        stockPredictions[i].lastPrices.splice(0, 1);
       }
 
-      stockPredictions[sym] = stockHistory;
-
-      if (stockHistory.lastPrices.length < 30) {
-        continue;
-      }
-
-      let score = stockHistory.lastPrices.reduce(
+      let score = stockPredictions[i].lastPrices.reduce(
         (element, total) => element + total
       );
-      const [shares, avgPx, sharesShort, avgPxShort] =
-        ns.stock.getPosition(sym);
 
-      let graphic = await StockPositionToString(ns, sym);
+      stockPredictions[i].shares = shares;
+      stockPredictions[i].avgPx = avgPx;
+      stockPredictions[i].sharesShort = sharesShort;
+      stockPredictions[i].avgPxShort = avgPxShort;
+      stockPredictions[i].score = score;
 
-      ns.print(`${sym} (${score}):`.padStart(11, " ") + graphic);
+      ready = stockPredictions[i].lastPrices.length === 30;
 
-      if (score > 15 && shares === 0) {
-        let totalValue = await TotalValue(ns);
-        let budget = Math.max(100000, totalValue / 10);
-        let maxShares = ns.stock.getMaxShares(sym);
-        let targetShareCount = (budget - tradeFee) / price;
-        targetShareCount =
-          targetShareCount > maxShares ? maxShares : targetShareCount;
-
-        let purchaseCost = ns.stock.getPurchaseCost(
-          sym,
-          targetShareCount,
-          "Long"
+      if (
+        orders[stockPredictions[i].sym] &&
+        orders[stockPredictions[i].sym].length === 1
+      ) {
+        ns.stock.cancelOrder(
+          stockPredictions[i].sym,
+          orders[stockPredictions[i].sym][0].shares,
+          orders[stockPredictions[i].sym][0].price,
+          orders[stockPredictions[i].sym][0].type,
+          orders[stockPredictions[i].sym][0].position
         );
-        let playerMoney = ns.getPlayer().money;
-
-        let sharesPurchased = false;
-
-        if (orders[sym]) {
-          for (let i = 0; i < orders[sym].length; i++) {
-            let order = orders[sym][i];
-            ns.stock.cancelOrder(
-              sym,
-              order.shares,
-              order.price,
-              order.type,
-              order.position
-            );
-          }
-        }
-
-        if (purchaseCost <= playerMoney) {
-          sharesPurchased = ns.stock.buy(sym, targetShareCount) !== 0;
-        }
-
-        if (sharesPurchased) {
-          ns.tprint(`Purchased ${targetShareCount} of ${sym} at ${price} each`);
-          let stopSellOrder = ns.stock.placeOrder(
-            sym,
-            targetShareCount,
-            0.8 * price,
-            "Stop Sell Order",
-            "Long"
-          );
-          if (stopSellOrder) {
-            ns.tprint(`Placed stop sell order on ${0.8 * price}`);
-          }
-          let limitSellOrder = ns.stock.placeOrder(
-            sym,
-            targetShareCount,
-            1.2 * price,
-            "Limit Sell Order",
-            "Long"
-          );
-          if (limitSellOrder) {
-            ns.tprint(`Placed limit sell order on ${1.2 * price}`);
-          }
-        }
       }
+    }
+
+    if (!ready) {
+      await ns.sleep(6000);
+      continue;
+    }
+
+    for (let i = 0; i < stockPredictions.length; i++) {
+      let prediction = stockPredictions[i];
+      if (prediction.score < 0 && prediction.shares > 0) {
+        SellStock(ns, prediction.sym);
+      }
+
+      if (prediction.score > 0 && prediction.sharesShort > 0) {
+        ShortSellStock(ns, prediction.sym);
+      }
+    }
+
+    stockPredictions = stockPredictions.sort(
+      (a, d) => Math.abs(30 - (d.score + 30)) - Math.abs(30 - (a.score + 30))
+    );
+
+    for (let i = 0; i < stockPredictions.length; i++) {
+      let prediction = stockPredictions[i];
+      if (prediction.score > 15 && prediction.shares === 0) {
+        BuyStock(ns, prediction.sym);
+      }
+
+      if (prediction.score < -15 && prediction.sharesShort === 0) {
+        ShortStock(ns, prediction.sym);
+      }
+    }
+
+    stockPredictions = stockPredictions.sort((a, d) => d.score - a.score);
+
+    for (let i = 0; i < stockPredictions.length; i++) {
+      let graphic = StockPositionToString(
+        ns,
+        stockPredictions[i].sym,
+        stockPredictions[i].shares > 0 ? "L" : "S"
+      );
+
+      ns.print(
+        `${stockPredictions[i].sym} (${stockPredictions[i].score}):`.padStart(
+          11,
+          " "
+        ) + graphic
+      );
     }
 
     await ns.sleep(6000);
