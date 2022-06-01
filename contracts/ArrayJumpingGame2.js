@@ -18,7 +18,7 @@ export async function main(ns) {
   let host = ns.args[1];
   let input = ns.codingcontract.getData(filename, host);
   // let answer = Jump(input) ? 1 : 0;
-  let answer = 1;
+  let answer = 0;
   let result = ns.codingcontract.attempt(answer, filename, host);
   ns.tprint(
     `Attempting ${filename} (${host}) with '${answer}' returned the following result: ${result}`
