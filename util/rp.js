@@ -10,7 +10,7 @@ export async function main(ns) {
     if (
       targetServers.indexOf(serverName) >= 0 &&
       ns.hasRootAccess(serverName) &&
-      ns.getServerSecurityLevel(serverName) <= ns.getPlayer().hacking
+      ns.getServerRequiredHackingLevel(serverName) <= ns.getPlayer().hacking
     ) {
       ns.singularity.connect("home");
       path.forEach(function (node) {

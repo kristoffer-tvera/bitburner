@@ -11,7 +11,7 @@ export const Crimes = [
   "Grand Theft Auto",
   "Kidnap",
   "Assassination",
-  "Heis",
+  "Heist",
 ];
 export const Sector12UniversityCourses = [
   "Study Computer Science",

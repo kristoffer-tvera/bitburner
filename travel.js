@@ -8,6 +8,6 @@ export async function main(ns) {
       ns.singularity.travelToCity("New Tokyo");
       ns.singularity.travelToCity("Ishima");
     }
-    await ns.sleep(0);
+    await ns.sleep(5);
   }
 }
