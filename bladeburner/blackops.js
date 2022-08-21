@@ -8,4 +8,6 @@ export async function main(ns) {
       await ns.sleep(time + 1000);
     }
   }
+
+  ns.singularity.destroyW0r1dD43m0n(12, "/bladeburner/init.js");
 }

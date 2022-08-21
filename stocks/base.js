@@ -46,7 +46,7 @@ export function BuyStock(ns, sym) {
   }
 
   ns.print(`Buying ${targetShareCount} stocks at ${price}`);
-  let sharePurchasePrice = ns.stock.buy(sym, targetShareCount);
+  let sharePurchasePrice = ns.stock.buyStock(sym, targetShareCount);
   if (sharePurchasePrice) {
     ns.print(`Purchased ${targetShareCount} of ${sym} at ${price} each`);
     let stopSellOrder = ns.stock.placeOrder(
@@ -114,7 +114,7 @@ export function ShortStock(ns, sym) {
 
   ns.print(`Shorting ${targetShareCount} stocks at ${price}`);
 
-  let shareShortPrice = ns.stock.short(sym, targetShareCount);
+  let shareShortPrice = ns.stock.buyShort(sym, targetShareCount);
   if (shareShortPrice) {
     ns.print(`Shorted ${targetShareCount} of ${sym} at ${price} each`);
     let stopSellOrder = ns.stock.placeOrder(
@@ -190,7 +190,7 @@ export function SellStock(ns, sym) {
     }
   }
 
-  return ns.stock.sell(sym, shares);
+  return ns.stock.sellStock(sym, shares);
 }
 
 /**

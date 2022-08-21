@@ -95,3 +95,13 @@ export async function expandOffice(ns, count, industry) {
 
   ns.toast(`Finished incrementing all ${industry}-offices.`, "info");
 }
+
+export function GetRandomProductName() {
+  let member =
+    "Product-" +
+    Math.ceil(Math.random() * 100000)
+      .toString()
+      .padStart(5, "0");
+
+  return member;
+}

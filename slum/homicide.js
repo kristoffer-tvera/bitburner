@@ -27,11 +27,11 @@ export async function main(ns) {
     timeLimit += hours * 60 * 60 * 1000;
 
     while (timeLimit > 0) {
-      while (ns.isBusy()) {
+      while (ns.singularity.isBusy()) {
         await ns.sleep(1000);
       }
 
-      let time = ns.commitCrime(crime);
+      let time = ns.singularity.commitCrime(crime);
       timeLimit -= time;
     }
 
@@ -41,16 +41,16 @@ export async function main(ns) {
   let endlessStop = 0;
   if (data.endless) {
     while (true) {
-      while (ns.isBusy()) {
+      while (ns.singularity.isBusy()) {
         await ns.sleep(1000);
       }
 
-      ns.commitCrime(crime);
+      ns.singularity.commitCrime(crime);
       ns.toast(`Break in ${50 - endlessStop++} actions`, "info");
 
       if (endlessStop === 50) {
         await ns.sleep(15000);
-        if (ns.isBusy()) {
+        if (ns.singularity.isBusy()) {
           ns.toast(`Stopping endless-mode`, "info");
           return;
         }
@@ -61,11 +61,11 @@ export async function main(ns) {
   }
 
   for (var i = 0; i < data.count; i++) {
-    while (ns.isBusy()) {
+    while (ns.singularity.isBusy()) {
       await ns.sleep(1000);
     }
 
-    ns.commitCrime(crime);
+    ns.singularity.commitCrime(crime);
     ns.toast(`${i + 1}/${data.count}`, "info");
   }
 }

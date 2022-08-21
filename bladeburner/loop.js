@@ -51,5 +51,9 @@ export async function main(ns) {
     await ns.sleep(sleepTime);
 
     SpendSkillpoints(ns);
+
+    if (ns.bladeburner.getRank() > 1000000) {
+      ns.spawn("/bladeburner/blackops.js");
+    }
   }
 }
